@@ -97,6 +97,7 @@ int arm_reg_write(struct uc_struct *uc, unsigned int *regs, void* const* vals, i
 {
     CPUState *mycpu = uc->cpu;
     int i;
+    int thumb_now;
 
     for (i = 0; i < count; i++) {
         unsigned int regid = regs[i];
@@ -120,10 +121,13 @@ int arm_reg_write(struct uc_struct *uc, unsigned int *regs, void* const* vals, i
                     break;
                 //case UC_ARM_REG_PC:
                 case UC_ARM_REG_R15:
+                    thumb_now = (*(uint32_t *)value & 1) || (ARM_CPU(uc, mycpu)->env.uc->mode & UC_MODE_THUMB);
                     ARM_CPU(uc, mycpu)->env.pc = (*(uint32_t *)value & ~1);
-                    ARM_CPU(uc, mycpu)->env.thumb = (*(uint32_t *)value & 1);
-                    ARM_CPU(uc, mycpu)->env.uc->thumb = (*(uint32_t *)value & 1);
-                    ARM_CPU(uc, mycpu)->env.regs[15] = (*(uint32_t *)value & ~1);
+
+                    // treat UC_MODE_THUMB as always-in-thumb (and UC_MODE_ARM as detect-thumb-from-pc)
+                    ARM_CPU(uc, mycpu)->env.thumb = thumb_now;
+                    ARM_CPU(uc, mycpu)->env.uc->thumb = thumb_now;
+                    ARM_CPU(uc, mycpu)->env.regs[15] = thumb_now ? (*(uint32_t *)value & ~1) : *(uint32_t *)value;
                     // force to quit execution and flush TB
                     uc->quit_request = true;
                     uc_emu_stop(uc);
