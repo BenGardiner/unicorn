@@ -136,6 +136,7 @@ static void test_thumb(void)
     // emulate machine code in infinite time (last param = 0), or when
     // finishing all the code.
     // Note we start at ADDRESS | 1 to indicate THUMB mode.
+    // TODO: also test from ADDRESS & ~1 with UC_MODE_THUMB
     err = uc_emu_start(uc, ADDRESS | 1, ADDRESS + sizeof(THUMB_CODE) -1, 0, 0);
     if (err) {
         printf("Failed on uc_emu_start() with error returned: %u\n", err);

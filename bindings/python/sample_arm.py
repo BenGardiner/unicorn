@@ -86,6 +86,7 @@ def test_thumb():
 
         # emulate machine code in infinite time
         # Note we start at ADDRESS | 1 to indicate THUMB mode.
+        # TODO: also test from ADDRESS & ~1 with UC_ARM_THUMB
         mu.emu_start(ADDRESS | 1, ADDRESS + len(THUMB_CODE))
 
         # now print out some registers
